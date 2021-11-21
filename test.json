@@ -1,0 +1,26 @@
+{
+    "testCases": {
+        "create_task": {
+            "path": "/task",
+            "method": "POST",
+            "body": {
+                "name" : "Design New App",
+                "tags": ["designing"],
+                "user" : {
+                    "name" : "admin",
+                    "ggid": "131289fdsfsd",
+                    "email": "admin@gmail.com"
+                },
+                "status": "Working"
+            }
+        },
+        "get_tasks": {
+            "path": "/task",
+            "method": "GET"
+        }
+    },
+    "url": "localhost:8080",
+    "header": {
+        "Content-Type": "application/json"
+    }
+}
