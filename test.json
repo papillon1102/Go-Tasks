@@ -1,22 +1,29 @@
 {
     "testCases": {
-        "create_task": {
+        "create_tasks": {
             "path": "/task",
             "method": "POST",
             "body": {
-                "name" : "Design New App",
-                "tags": ["designing"],
+                "name" : "Traning New Tech",
+                "tags": ["training"],
                 "user" : {
-                    "name" : "admin",
-                    "ggid": "131289fdsfsd",
-                    "email": "admin@gmail.com"
+                    "name" : "Tom",
+                    "ggid": "03108709fdsfpo",
+                    "email": "tom@gmail.com"
                 },
-                "status": "Working"
+                "status": "Upcoming"
             }
         },
         "get_tasks": {
             "path": "/task",
             "method": "GET"
+        },
+        "update_tasks": {
+            "path": "/task/619c990571cce086dc220d06",
+            "method": "PUT",
+            "body": {
+                "name" : "Client Meeting"
+            }
         }
     },
     "url": "localhost:8080",

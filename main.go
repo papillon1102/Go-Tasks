@@ -1,54 +1,54 @@
 package main
 
 import (
-	"net/http"
-	"time"
+	"context"
+
+	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
+	handler "github.com/papillon1102/go-tasks/tasksHandler"
+	"github.com/phuslu/log"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-var tasks []Task
+var taskHandler *handler.TaskHandler
 
-type User struct {
-	Name  string `json:"name"`
-	GGID  string `json:"ggid"`
-	Email string `json:"email"`
-}
+func init() {
 
-type Task struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	Tags      []string  `json:"tags"`
-	User      User      `json:"user"`
-	Status    string    `json:"status"`
-	CreatedAt time.Time `json:createdAt`
-}
-
-func NewTaskHandler(c *gin.Context) {
-	var task Task
-
-	// Decode request body in to "Task" struct
-	if err := c.ShouldBindJSON(&task); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		return
+	// Config for "phuslu log"
+	if log.IsTerminal(os.Stderr.Fd()) {
+		log.DefaultLogger = log.Logger{
+			TimeFormat: "15:04:05",
+			Caller:     1,
+			Writer: &log.ConsoleWriter{
+				ColorOutput:    true,
+				QuoteString:    true,
+				EndWithMessage: true,
+			},
+		}
 	}
-	task.ID = uuid.NewString()
-	task.CreatedAt = time.Now()
 
-	tasks = append(tasks, task)
-	c.JSON(http.StatusOK, task)
-}
+	ctx := context.Background()
 
-func ListTaskHandler(c *gin.Context) {
+	// Connect to Mongo via ENV var
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("MONGO_URI")))
+	if err = client.Ping(context.TODO(), readpref.Primary()); err != nil {
+		log.Fatal().Err(err)
+	} else {
+		log.Info().Msg("Connected to MongoDB")
+	}
 
-	// Encode "tasks" array into JSON
-	c.JSON(http.StatusOK, tasks)
+	// Connect to "Go-Tasks" MongoDB
+	collection := client.Database(os.Getenv("MONGO_DATABASE")).Collection("tasks")
+
+	// Make new task-handler
+	taskHandler = handler.NewTasksHandler(ctx, collection)
 }
 
 func NewRouter() *gin.Engine {
+
 	router := gin.Default()
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -56,8 +56,9 @@ func NewRouter() *gin.Engine {
 		})
 	})
 
-	router.POST("/task", NewTaskHandler)
-	router.GET("/task", ListTaskHandler)
+	router.POST("/task", taskHandler.NewTaskHandler)
+	router.GET("/task", taskHandler.ListTaskHandler)
+	router.PUT("/task/:id", taskHandler.UpdateTaskHandler)
 	return router
 }
 
