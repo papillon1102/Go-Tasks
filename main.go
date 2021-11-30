@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"sync"
 
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	handler "github.com/papillon1102/go-tasks/tasksHandler"
@@ -13,6 +15,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
+
+// Add session management system (FIXME)
 
 var taskHandler *handler.TaskHandler
 var authHandler *handler.AuthHandler
@@ -31,7 +35,7 @@ func init() {
 			},
 		}
 	}
-
+	mutex := sync.Mutex{}
 	ctx := context.Background()
 
 	// Connect to Mongo via ENV var
@@ -57,7 +61,7 @@ func init() {
 
 	// Make new task-handler
 	taskHandler = handler.NewTasksHandler(ctx, collection, redisClient)
-	authHandler = handler.NewAuthHandler(userCollection, ctx, redisClient)
+	authHandler = handler.NewAuthHandler(userCollection, ctx, redisClient, mutex)
 
 	status := redisClient.Ping()
 	log.Info().Msgf("Status: %v\n", status)
@@ -67,7 +71,8 @@ func NewRouter() *gin.Engine {
 
 	router := gin.Default()
 
-	// Setup redis for session - Need to call this session 1st (NOTE)
+	// Setup CORS handle
+	router.Use(cors.Default())
 
 	// Call another router later (NOTE)
 	router.GET("/", func(c *gin.Context) {
