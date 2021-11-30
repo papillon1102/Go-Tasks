@@ -4,14 +4,14 @@
             "path": "/task",
             "method": "POST",
             "body": {
-                "name" : "Traning New Tech",
-                "tags": ["training"],
+                "name" : "Team Trip-2",
+                "tags": ["planning"],
                 "user" : {
-                    "name" : "Tom",
-                    "ggid": "03108709fdsfpo",
-                    "email": "tom@gmail.com"
+                    "name" : "John",
+                    "ggid": "65778jj09fdsdll",
+                    "email": "john@gmail.com"
                 },
-                "status": "Upcoming"
+                "status": "Planning"
             }
         },
         "get_tasks": {
@@ -19,15 +19,30 @@
             "method": "GET"
         },
         "update_tasks": {
-            "path": "/task/619c990571cce086dc220d06",
+            "path": "/task/619e16ea8f9bfe4ec69e7111",
             "method": "PUT",
             "body": {
-                "name" : "Client Meeting"
+                "name" : "Client Afternoon Lunch",
+                "status" : "Urgent"
             }
+        },
+        "auth_Login": {
+            "path": "/signin",
+            "method": "POST",
+            "body": {
+                "username": "Tom",
+                "password": "fCRmh4Q2J7Rseqkz",
+                "ggid":     "4=5747431bhdbf"
+            }
+        },
+        "refresh": {
+            "path": "/refresh",
+            "method": "POST"
         }
     },
-    "url": "localhost:8080",
+    "url": "localhost:8081",
     "header": {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization":"v1.local.9eI2Ka4sDpdXRdBMr5NHLDdbLDxKSZOTulav1JmJjwrfIfSI-_Wo1CAgNnngYdhMHYGK9UnxM1KiRMj2KrATO2Q0SHgP7OXsY9avds3Oxk-jeRGGYGA0ipiYwqeCVbN-f1i7K4JPleYbuu_Q1_2eiY-CTJMVj1wd28JNhV5vX_EXelLol4J695_EV086MERhhEFgyhnRPO-J59-b2aL900hV7oaTDkEviaNlvlUpwz3LdKnKnvcU2q8yfgx5rl0M-lhHA7Hw0BN1cfvEuLdOV2Y48_WsfV9fpZPuzV-o0M0FeeaKnk_qhD6_3tmGE_m-ERZe.ZG5uRG5iT2JKV0hoYXduQ2RacG1JdEl3TUlvUm8zZGE"
     }
 }

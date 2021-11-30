@@ -7,3 +7,28 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=password
+
+  redis:
+    image: redis:6.0
+    ports:
+      - 6379:6379
+    volumes:
+      - $PWD/conf:/usr/local/etc/redis
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=password
+    ports:
+      - 8080:15672
+      - 5672:5672
+
+  api:
+    build:
+      context: .
+    environment:
+      - MONGO_URI=mongodb://admin:password@192.168.99.100:27017/test?authSource=admin&readPreference=primary&ssl=false
+      - MONGO_DATABASE=Go-Tasks
+      - REDIS_URI=192.268.99.100:6379
+    restart: on-failure

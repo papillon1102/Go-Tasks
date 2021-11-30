@@ -1,0 +1,51 @@
+
+# To make this docker-compose work, we need to make
+# new go.mod file => and then run go.mod download
+# after that we build dodkcerfile and should
+# let theme run in the default network
+
+# nginx : http://localhost/api/tasks or
+# nginx : http://192.168.99.100/api/tasks or
+version: '3'
+services:
+  # mongodb:
+  #   image: mongo:4.4.3
+  #   ports:
+  #     - 27017:27017
+  #   environment:
+  #     - MONGO_INITDB_ROOT_USERNAME=admin
+  #     - MONGO_INITDB_ROOT_PASSWORD=password
+  # redis:
+  #   image: redis:6.0
+  #   ports:
+  #     - 6379:6379
+  #   volumes:
+  #     - $PWD/conf:/usr/local/etc/redis
+  # rabbitmq:
+  #   image: rabbitmq:3-management
+  #   restart: on-failure
+  #   environment:
+  #     - RABBITMQ_DEFAULT_USER=user
+  #     - RABBITMQ_DEFAULT_PASS=password
+  #   ports:
+  #     - 8080:15672
+  #     - 5672:5672
+  worker:
+    # image: worker
+    build:
+      context: .
+    restart: on-failure
+    environment:
+      - MONGO_URI=mongodb://admin:password@192.168.99.100:27017/test?authSource=admin&readPreference=primary&ssl=false
+      - MONGO_DATABASE=test-rss
+      - RABBITMQ_URI=amqp://user:password@192.168.99.100:5672
+      - RABBITMQ_QUEUE=rss_urls
+
+  # nginx:
+  #   image: nginx
+  #   ports:
+  #     - 80:80
+  #   volumes:
+  #     - $PWD/nginx.conf:/etc/nginx/nginx.conf
+  #   depends_on:
+  #     - worker

@@ -7,9 +7,15 @@ import (
 )
 
 type User struct {
-	Name  string `json:"name"`
-	GGID  string `json:"ggid"`
-	Email string `json:"email"`
+	Name  string `json:"name" bson:"name"`
+	GGID  string `json:"ggid" bson:"ggid"`
+	Email string `json:"email" bson: "email"`
+}
+
+type AuthUser struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Ggid     string `json:"ggid"`
 }
 
 type Task struct {
