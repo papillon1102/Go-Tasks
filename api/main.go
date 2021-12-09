@@ -9,7 +9,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
-	handler "github.com/papillon1102/Go-Tasks/tasksHandler"
+	handler "github.com/papillon1102/Go-Tasks/api/tasksHandler"
 
 	"github.com/phuslu/log"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -89,6 +89,7 @@ func NewRouter() *gin.Engine {
 	// router.POST("/signin", authHandler.SignInHandler)
 	router.POST("/signin", authHandler.SignInPWTHandler)
 	router.POST("/refresh", authHandler.RefreshHandler)
+	router.POST("/signup", authHandler.SignUpPWTHandler)
 
 	// Create new router group
 	auth := router.Group("/")

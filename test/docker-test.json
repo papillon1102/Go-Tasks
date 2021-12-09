@@ -4,12 +4,12 @@
             "path": "/task",
             "method": "POST",
             "body": {
-                "name" : "Team Trip-2",
-                "tags": ["planning"],
+                "name" : "Team Training-2",
+                "tags": ["urgent"],
                 "user" : {
-                    "name" : "John",
-                    "ggid": "65778jj09fdsdll",
-                    "email": "john@gmail.com"
+                    "name" : "JJ",
+                    "ggid": "061{{}}%%&98rwvb!!",
+                    "email": "jj@gmail.com"
                 },
                 "status": "Planning"
             }
@@ -30,9 +30,9 @@
             "path": "/signin",
             "method": "POST",
             "body": {
-                "username": "Tom",
-                "password": "fCRmh4Q2J7Rseqkz",
-                "ggid":     "4=5747431bhdbf"
+                "username": "Frank",
+		        "password": "097781fhsvvjl",
+		        "ggid":     "bnh$#@^3423787983"
             }
         },
         "refresh": {
@@ -40,9 +40,9 @@
             "method": "POST"
         }
     },
-    "url": "localhost:8081",
+    "url": "http://192.168.99.100/api/",
     "header": {
         "Content-Type": "application/json",
-        "Authorization":"v1.local.9eI2Ka4sDpdXRdBMr5NHLDdbLDxKSZOTulav1JmJjwrfIfSI-_Wo1CAgNnngYdhMHYGK9UnxM1KiRMj2KrATO2Q0SHgP7OXsY9avds3Oxk-jeRGGYGA0ipiYwqeCVbN-f1i7K4JPleYbuu_Q1_2eiY-CTJMVj1wd28JNhV5vX_EXelLol4J695_EV086MERhhEFgyhnRPO-J59-b2aL900hV7oaTDkEviaNlvlUpwz3LdKnKnvcU2q8yfgx5rl0M-lhHA7Hw0BN1cfvEuLdOV2Y48_WsfV9fpZPuzV-o0M0FeeaKnk_qhD6_3tmGE_m-ERZe.ZG5uRG5iT2JKV0hoYXduQ2RacG1JdEl3TUlvUm8zZGE"
+        "Authorization": "v1.local.KmwAkaNEQpE9uyK83fb2JwrRvN8-5imEhPi59kTWzpVOaDXeuyoDpli9rOfOPm6EUZ1jSC3AW56BORcxGUB8-pc9dA1z4UABy8zQ7mOU3y76JqdY73wskIX0bz3w7zf9syN1g_VOS2zMc7_BtgVBRcTnhQpnAb8xBJFiSfMeZYscXKezjIE1WDazRMDlkqm8gL6uXD3JTT7OJfVh7SNUm8hSznP49xggwWbEZwR-3iYe9UhJ6iOmQNGET5i_Jng9GgbY0QZijjXBmGEKvp4Qm9AJa6As8W0EKmKdA3_9w7HK4l20"
     }
 }

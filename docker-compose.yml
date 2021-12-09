@@ -32,3 +32,14 @@ services:
       - MONGO_DATABASE=Go-Tasks
       - REDIS_URI=192.268.99.100:6379
     restart: on-failure
+
+
+  nginx:
+    build:
+      dockerfile: DockerNginx.dev
+      context: .
+    restart: on-failure
+    ports:
+      - 80:80
+    depends_on:
+      - api

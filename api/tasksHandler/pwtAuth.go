@@ -10,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	"github.com/papillon1102/Go-Tasks/models"
-	"github.com/streadway/amqp"
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/phuslu/log"
@@ -25,11 +24,6 @@ type AuthHandler struct {
 	locker      *sync.Mutex // Former: sync.Muutex
 }
 
-// type Claims struct {
-// 	Username string `json:"username"`
-// 	jwt.StandardClaims
-// }
-
 type PWTOutput struct {
 	Token   string    `json:"token"`
 	Expires time.Time `json:"expires"`
@@ -43,19 +37,6 @@ func NewAuthHandler(collection *mongo.Collection, ctx context.Context, redis *re
 		id:          id,
 		locker:      mutex,
 	}
-}
-
-var channelAmqp *amqp.Channel
-
-func init() {
-
-	// Connection-string will be provided via "RABBITMQ_URI" (NOTE)
-	amqpConnection, err := amqp.Dial(os.Getenv("RABBITMQ_URI"))
-	if err != nil {
-		log.Error().Err(err)
-	}
-
-	channelAmqp, _ = amqpConnection.Channel()
 }
 
 var key = RandomString(32)
@@ -99,6 +80,7 @@ func (ah *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
+// User-signin
 func (au *AuthHandler) SignInPWTHandler(c *gin.Context) {
 	var authUser models.AuthUser
 	if err := c.ShouldBindJSON(&authUser); err != nil {
@@ -129,7 +111,7 @@ func (au *AuthHandler) SignInPWTHandler(c *gin.Context) {
 	expirationTime := time.Now().Add(time.Minute * 10)
 
 	// Create paseto token
-	footer := os.Getenv("JWT_SECRET")
+	footer := os.Getenv("FOOTER")
 	token, err := paseto.CreatePWT(authUser.Username, footer, expirationTime)
 	if err != nil {
 		log.Error().Err(err)
@@ -159,6 +141,25 @@ func (au *AuthHandler) SignInPWTHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Welcome back " + authUser.Username})
 }
 
+func (au *AuthHandler) SignUpPWTHandler(c *gin.Context) {
+	var authUser models.AuthUser
+	if err := c.ShouldBindJSON(&authUser); err != nil {
+		log.Error().Err(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err := au.collection.InsertOne(au.ctx, authUser)
+	if err != nil {
+		log.Error().Err(err).Msg("Err from insert new user")
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+		c.Abort()
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User has been added"})
+}
+
+// Renew-token for user
 func (ah *AuthHandler) RefreshHandler(c *gin.Context) {
 	token := c.GetHeader("Authorization")
 

@@ -101,6 +101,7 @@ func main() {
 		nil,
 	)
 
+	// Loop via channel msgs from rabbitMQ
 	go func() {
 		for msg := range msgs {
 			log.Info().Msgf("Received a message: %s\n", msg.Body)
