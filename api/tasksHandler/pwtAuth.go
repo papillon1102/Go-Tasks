@@ -7,25 +7,21 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
-	"github.com/papillon1102/go-tasks/models"
+	"github.com/papillon1102/Go-Tasks/models"
+	"gopkg.in/mgo.v2/bson"
+
 	"github.com/phuslu/log"
 	"go.mongodb.org/mongo-driver/mongo"
-	"gopkg.in/mgo.v2/bson"
 )
 
 type AuthHandler struct {
 	collection  *mongo.Collection
 	ctx         context.Context
 	redisClient *redis.Client
-	locker      sync.Mutex
-}
-
-type Claims struct {
-	Username string `json:"username"`
-	jwt.StandardClaims
+	id          string
+	locker      *sync.Mutex // Former: sync.Muutex
 }
 
 type PWTOutput struct {
@@ -33,11 +29,12 @@ type PWTOutput struct {
 	Expires time.Time `json:"expires"`
 }
 
-func NewAuthHandler(collection *mongo.Collection, ctx context.Context, redis *redis.Client, mutex sync.Mutex) *AuthHandler {
+func NewAuthHandler(collection *mongo.Collection, ctx context.Context, redis *redis.Client, id string, mutex *sync.Mutex) *AuthHandler { // former: sync.Mutex
 	return &AuthHandler{
 		collection:  collection,
 		ctx:         ctx,
 		redisClient: redis,
+		id:          id,
 		locker:      mutex,
 	}
 }
@@ -51,10 +48,11 @@ var id string
 func (ah *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		tokenName := "token" + "_" + id
-		tokenValue, err := ah.redisClient.Get(tokenName).Result()
+		tokenName := "token" + "_" + ah.id
+
+		_, err := ah.redisClient.Get(tokenName).Result()
 		if err != nil {
-			log.Error().Err(err)
+			log.Error().Err(err).Msg("Err from middleware")
 			c.JSON(http.StatusForbidden, gin.H{"message": "not logged"})
 			c.Abort()
 		}
@@ -62,26 +60,27 @@ func (ah *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 		// // Get token value from header
 		// tokenValue := c.GetHeader("Authorization")
 
-		// Create paseto
-		paseto, err := NewPasetoMaker(key)
-		if err != nil {
-			log.Error().Err(err)
-			c.AbortWithStatus(http.StatusBadRequest)
-			return
-		}
+		// Create paseto <- don't need to (FIXME)
+		// paseto, err := NewPasetoMaker(key)
+		// if err != nil {
+		// 	log.Error().Err(err)
+		// 	c.AbortWithStatus(http.StatusBadRequest)
+		// 	return
+		// }
 
-		// Verify the token
-		_, err = paseto.DecryptPWT(tokenValue)
-		if err != nil {
-			log.Error().Err(err).Msg("Err verify token")
-			c.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
+		// Verify the token <- maybe don't need (FIXME)
+		// _, err = paseto.DecryptPWT(tokenValue)
+		// if err != nil {
+		// 	log.Error().Err(err).Msg("Err verify token")
+		// 	c.AbortWithStatus(http.StatusUnauthorized)
+		// 	return
+		// }
 
 		c.Next()
 	}
 }
 
+// User-signin
 func (au *AuthHandler) SignInPWTHandler(c *gin.Context) {
 	var authUser models.AuthUser
 	if err := c.ShouldBindJSON(&authUser); err != nil {
@@ -112,7 +111,7 @@ func (au *AuthHandler) SignInPWTHandler(c *gin.Context) {
 	expirationTime := time.Now().Add(time.Minute * 10)
 
 	// Create paseto token
-	footer := os.Getenv("JWT_SECRET")
+	footer := os.Getenv("FOOTER")
 	token, err := paseto.CreatePWT(authUser.Username, footer, expirationTime)
 	if err != nil {
 		log.Error().Err(err)
@@ -123,11 +122,14 @@ func (au *AuthHandler) SignInPWTHandler(c *gin.Context) {
 
 	// We need to lock here to ensure data written correctly
 	au.locker.Lock()
-	id = authUser.Ggid
+	au.id = authUser.Ggid
 	au.locker.Unlock()
 
 	// Add new session after user-signin with google-uuid
 	saveTokenName := "token" + "_" + authUser.Ggid
+
+	// We will use mongoDB as session
+	// management tools instead Redis (FIXME)
 	au.redisClient.Set(saveTokenName, token, 0)
 
 	if err != nil {
@@ -139,6 +141,25 @@ func (au *AuthHandler) SignInPWTHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Welcome back " + authUser.Username})
 }
 
+func (au *AuthHandler) SignUpPWTHandler(c *gin.Context) {
+	var authUser models.AuthUser
+	if err := c.ShouldBindJSON(&authUser); err != nil {
+		log.Error().Err(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err := au.collection.InsertOne(au.ctx, authUser)
+	if err != nil {
+		log.Error().Err(err).Msg("Err from insert new user")
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+		c.Abort()
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User has been added"})
+}
+
+// Renew-token for user
 func (ah *AuthHandler) RefreshHandler(c *gin.Context) {
 	token := c.GetHeader("Authorization")
 

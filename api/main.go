@@ -9,7 +9,8 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
-	handler "github.com/papillon1102/go-tasks/tasksHandler"
+	handler "github.com/papillon1102/Go-Tasks/api/tasksHandler"
+
 	"github.com/phuslu/log"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -17,6 +18,7 @@ import (
 )
 
 // Add session management system (FIXME)
+// "url": "http://192.168.99.100/api",
 
 var taskHandler *handler.TaskHandler
 var authHandler *handler.AuthHandler
@@ -35,7 +37,7 @@ func init() {
 			},
 		}
 	}
-	mutex := sync.Mutex{}
+	mutex := &sync.Mutex{}
 	ctx := context.Background()
 
 	// Connect to Mongo via ENV var
@@ -61,10 +63,10 @@ func init() {
 
 	// Make new task-handler
 	taskHandler = handler.NewTasksHandler(ctx, collection, redisClient)
-	authHandler = handler.NewAuthHandler(userCollection, ctx, redisClient, mutex)
+	authHandler = handler.NewAuthHandler(userCollection, ctx, redisClient, "", mutex)
 
 	status := redisClient.Ping()
-	log.Info().Msgf("Status: %v\n", status)
+	log.Info().Msgf("Status: %v", status)
 }
 
 func NewRouter() *gin.Engine {
@@ -87,6 +89,7 @@ func NewRouter() *gin.Engine {
 	// router.POST("/signin", authHandler.SignInHandler)
 	router.POST("/signin", authHandler.SignInPWTHandler)
 	router.POST("/refresh", authHandler.RefreshHandler)
+	router.POST("/signup", authHandler.SignUpPWTHandler)
 
 	// Create new router group
 	auth := router.Group("/")

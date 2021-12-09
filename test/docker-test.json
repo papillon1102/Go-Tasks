@@ -1,0 +1,57 @@
+{
+    "testCases": {
+        "create_tasks": {
+            "path": "/task",
+            "method": "POST",
+            "body": {
+                "name" : "Team Training-2",
+                "tags": ["urgent"],
+                "user" : {
+                    "name" : "JJ",
+                    "ggid": "061{{}}%%&98rwvb!!",
+                    "email": "jj@gmail.com"
+                },
+                "status": "Planning"
+            }
+        },
+        "get_tasks": {
+            "path": "/task",
+            "method": "GET"
+        },
+        "update_tasks": {
+            "path": "/task/619e16ea8f9bfe4ec69e7111",
+            "method": "PUT",
+            "body": {
+                "name" : "Client Afternoon Lunch",
+                "status" : "Urgent"
+            }
+        },
+        "auth_Login": {
+            "path": "/signin",
+            "method": "POST",
+            "body": {
+                "username": "Frank",
+		        "password": "097781fhsvvjl",
+		        "ggid":     "bnh$#@^3423787983"
+            }
+        },
+        "sign_up": {
+            "path": "/signup",
+            "method": "POST",
+            "body": {
+                "username": "Vivian",
+                "password": "097781fhsvvjl",
+		        "ggid":     "@15977991bhdbmbcs"
+            }
+        },
+        "refresh": {
+            "path": "/refresh",
+            "method": "POST"
+        }
+    },
+    "url": "http://192.168.99.100/api/",
+    "header": {
+        "Content-Type": "application/json",
+        "Authorization": "v1.local.KmwAkaNEQpE9uyK83fb2JwrRvN8-5imEhPi59kTWzpVOaDXeuyoDpli9rOfOPm6EUZ1jSC3AW56BORcxGUB8-pc9dA1z4UABy8zQ7mOU3y76JqdY73wskIX0bz3w7zf9syN1g_VOS2zMc7_BtgVBRcTnhQpnAb8xBJFiSfMeZYscXKezjIE1WDazRMDlkqm8gL6uXD3JTT7OJfVh7SNUm8hSznP49xggwWbEZwR-3iYe9UhJ6iOmQNGET5i_Jng9GgbY0QZijjXBmGEKvp4Qm9AJa6As8W0EKmKdA3_9w7HK4l20"
+    }
+}

@@ -1,5 +1,10 @@
 package handler
 
+// type Claims struct {
+// 	Username string `json:"username"`
+// 	jwt.StandardClaims
+// }
+
 // JWT Middleware (FIXME)
 // func (ah *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 // 	return func(c *gin.Context) {
