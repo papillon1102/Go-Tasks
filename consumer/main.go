@@ -59,8 +59,48 @@ func GetFeedEntries(url string) ([]Entry, error) {
 	return feed.Entries, nil
 }
 
+func MakeRequest(url string) error {
+
+	client := http.Client{}
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Error().Err(err)
+		return err
+	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		log.Error().Err(err)
+		return err
+	}
+
+	defer res.Body.Close()
+	byteData, _ := ioutil.ReadAll(res.Body)
+	log.Info().Msgf("Data %s\n", string(byteData))
+	return nil
+}
+
 type Request struct {
 	URL string
+}
+
+// GetQuoteMess : <- this is goroutine-function
+func GetQuoteMess(msgs <-chan amqp.Delivery) {
+	for msg := range msgs {
+		log.Info().Msgf("Received a message: %s\n", msg.Body)
+
+		var request Request
+		json.Unmarshal(msg.Body, &request)
+		log.Debug().Msgf("RSS-URL : %s", request.URL)
+
+		err := MakeRequest(request.URL)
+		if err != nil {
+			log.Error().Err(err)
+			return
+		}
+
+	}
 }
 
 func main() {
@@ -108,11 +148,11 @@ func main() {
 
 			var request Request
 			json.Unmarshal(msg.Body, &request)
-			log.Debug().Msgf("RSS-URL : %s\n", request.URL)
+			log.Debug().Msgf("RSS-URL : %s", request.URL)
 
 			entries, _ := GetFeedEntries(request.URL)
 
-			collection := mongoClient.Database(os.Getenv("MONGO_DATABASE")).Collection("tasks")
+			collection := mongoClient.Database(os.Getenv("MONGO_DATABASE")).Collection("quotes")
 			for _, e := range entries {
 				collection.InsertOne(ctx, bson.M{
 					"title":     e.Title,

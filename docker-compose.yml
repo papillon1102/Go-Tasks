@@ -1,5 +1,6 @@
 version: '3'
 services:
+
   mongodb:
     image: mongo:4.4.3
     ports:
@@ -26,13 +27,24 @@ services:
 
   api:
     build:
-      context: .
+      dockerfile: Dockerfile
+      context: ./api/
     environment:
       - MONGO_URI=mongodb://admin:password@192.168.99.100:27017/test?authSource=admin&readPreference=primary&ssl=false
       - MONGO_DATABASE=Go-Tasks
       - REDIS_URI=192.268.99.100:6379
     restart: on-failure
 
+  client:
+    environment:
+      # Add this to enable "Hot-reloading in react "
+      - CHOKIDAR_USEPOLLING=true
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./Go-Tasks-Front/GoTasks-Front/
+    volumes:
+      - /app/node_modules
+      - ./Go-Tasks-Front/GoTasks-Front/src:/app/src
 
   nginx:
     build:
@@ -43,3 +55,4 @@ services:
       - 80:80
     depends_on:
       - api
+      - client

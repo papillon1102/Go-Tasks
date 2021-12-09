@@ -35,6 +35,15 @@
 		        "ggid":     "4=5747431bhdbfshd"
             }
         },
+        "sign_up": {
+            "path": "/signup",
+            "method": "POST",
+            "body": {
+                "username": "Vivian",
+                "password": "097781fhsvvjl",
+		        "ggid":     "@15977991bhdbmbcs"
+            }
+        },
         "refresh": {
             "path": "/refresh",
             "method": "POST"
