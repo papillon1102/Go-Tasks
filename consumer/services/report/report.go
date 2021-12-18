@@ -1,6 +1,6 @@
 package report
 
-import "github.com/papillon1102/Go-Tasks/services/list"
+import "github.com/papillon1102/Go-Tasks-Re/services/list"
 
 type ReportService struct {
 	ListService *list.ListService

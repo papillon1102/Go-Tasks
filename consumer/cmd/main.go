@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/papillon1102/Go-Tasks/services/list"
+	"github.com/papillon1102/Go-Tasks-Re/services/list"
 	"github.com/phuslu/log"
 	"github.com/streadway/amqp"
 	"go.mongodb.org/mongo-driver/mongo"

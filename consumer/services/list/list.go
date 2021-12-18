@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	domain "github.com/papillon1102/Go-Tasks/domain/TaskLog"
-	mongoTaskLog "github.com/papillon1102/Go-Tasks/domain/TaskLog/mongo"
+	domain "github.com/papillon1102/Go-Tasks-Re/domain/TaskLog"
+	mongoTaskLog "github.com/papillon1102/Go-Tasks-Re/domain/TaskLog/mongo"
 	"github.com/phuslu/log"
 
 	"go.mongodb.org/mongo-driver/mongo"

@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	domain "github.com/papillon1102/Go-Tasks/domain/TaskLog"
+	domain "github.com/papillon1102/Go-Tasks-Re/domain/TaskLog"
 	"github.com/phuslu/log"
 	"go.mongodb.org/mongo-driver/mongo"
 	"gopkg.in/mgo.v2/bson"
