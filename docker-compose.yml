@@ -1,0 +1,82 @@
+version: "3"
+
+services:
+  mongodb:
+    image: mongo:4.4.3
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+
+  redis:
+    image: redis:6.0
+    ports:
+      - 6379:6379
+    volumes:
+      - $PWD/conf:/usr/local/etc/redis
+
+  nginx:
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./Nginx
+    ports:
+      - '80:80'
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=password
+    ports:
+      - 8080:15672
+      - 5672:5672
+    restart: on-failure
+
+  api:
+    build:
+      context: ./Go-Tasks/
+    environment:
+      - MONGO_URI=mongodb://admin:password@192.168.99.100:27017/test?authSource=admin&readPreference=primary&ssl=false
+      - MONGO_DATABASE=Go-Tasks
+      - REDIS_URI=192.268.99.100:6379
+    restart: on-failure
+
+  producer:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./producer
+    environment:
+      - MONGO_URI=mongodb://admin:password@192.168.99.100:27017/test?authSource=admin&readPreference=primary&ssl=false
+      - MONGO_DATABASE=Go-Tasks
+      - RABBTMQ_QUEUE=user_taskEvent_logs
+      - RABBITMQ_URI=amqp://user:password@192.168.99.100:5672/
+      - FOOTER=HahahaNoFooter
+    restart: on-failure
+    ports:
+      - 5001:5001
+
+  # consumer:
+  #   build:
+  #     context: ./consumer
+  #   environment:
+  #     - MONGO_URI=mongodb://admin:password@192.168.99.100:27017/test?authSource=admin&readPreference=primary&ssl=false
+  #     - MONGO_DATABASE=Go-Tasks
+  #     - RABBTMQ_QUEUE=user_taskEvent_logs
+  #     - RABBITMQ_URI=amqp://user:password@192.168.99.100:5672/
+  #     - FOOTER=HahahaNoFooter
+  #   restart: on-failure
+  #   ports:
+  #     - 5003:5003
+
+  client:
+   environment:
+     # Add this to enable "Hot-reloading in react "
+     - CHOKIDAR_USEPOLLING=true
+   build:
+     dockerfile: Dockerfile.dev
+     context: ./Go-Tasks-FrontEnd/
+   volumes:
+     - /app/node_modules
+     - ./Go-Tasks-FrontEnd/src:/app/src
