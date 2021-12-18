@@ -1,0 +1,6 @@
+[submodule "Go-Tasks"]
+	path = Go-Tasks
+	url = ./Go-Tasks
+[submodule "Go-Tasks-FrontEnd"]
+	path = Go-Tasks-FrontEnd
+	url = ./Go-Tasks-FrontEnd
